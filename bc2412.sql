@@ -154,7 +154,11 @@ select *
 from customers
 where first_name like '%V%T';
 
--- DATE
+-- DATE (add)
 select o.*, date_add(o.order_date, interval 3 month) as follow_up_date
+from orders o
+
+-- DATE (subtract)
+select o.*, date_sub(o.order_date, interval 3 month) as back__date
 from orders o
 
