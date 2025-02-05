@@ -73,6 +73,7 @@ values (30, 'Purchasing', 202, 1400);
 
 select * from departments;
 
+
 CREATE TABLE JOBS (
 JOB_ID VARCHAR(10) PRIMARY KEY,
 JOB_TITLE VARCHAR(25),
@@ -151,15 +152,52 @@ from countries c inner join locations l on c.country_id = l.country_id;
 select first_name, last_name, department_id
 from employees;
 
-with department_employee as (
-select d.department_id as dep_id, e.*
-from departments d inner join employees e on d.department_id = e.department_id
-), country_location as (
-select c.country_id, c.country_name, l.*
-from countries c inner join locations l on c.country_id = l.country_id
+select e.first_name, e.last_name, e.job_id, e.department_id
+from employees e, departments d, countries c, locations l
+where d.department_id = e.department_id
+and d.location_id = l.location_id
+and c.country_id = l.country_id
+and c.country_name = 'Japan';
+
+select e.employee_id, e.last_name, m.manager_id, m.last_name as manager_last_name
+from employees e left join employees m on e.employee_id = m.manager_id;
+
+
+select first_name, last_name, hire_date
+from employees
+where hire_date > 
+(select hire_date
+from employees
+where last_name = 'De Haan'
+);
+
+select d.department_name, count(e.employee_id) as number_of_employees
+from departments d, employees e
+where d.department_id = e.department_id
+group by d.department_id;
+
+with employee_job as (
+select e.department_id, e.employee_id, j.job_title, j.job_id
+from jobs j left join employees e on j.job_id = e.job_id
 )
-select de.first_name, de.last_name, de.job_id, de.dep_id
-from department_employee de inner join country_location cl on de.location_id = cl.location_id
+select ej.employee_id, ej.job_title, datediff (jh.end_date, jh.start_date) as date_diff
+from employee_job ej left join job_history jh on ej.employee_id = jh.employee_id
+where ej.department_id = 30;
 
+with country_location_dept as (
+select c.country_name, l.city, d.department_id, d.department_name
+from countries c, locations l, departments d
+where c.country_id = l.country_id
+and l.location_id = d.location_id
+), employee_manager as (
+select e.department_id, e.employee_id, e.last_name, m.manager_id, m.first_name as manager_first_name, m.last_name as manager_last_name
+from employees e inner join employees m on e.employee_id = m.manager_id
+)
+select cld.department_name, em.manager_first_name, em.manager_last_name, cld.city, cld.country_name
+from country_location_dept cld, employee_manager em
+where cld.department_id = em.department_id;
 
-
+select d.department_name, avg(e.salary) as avg_salary
+from departments d, employees e
+where d.department_id = e.department_id
+group by department_name;
