@@ -201,3 +201,17 @@ select d.department_name, avg(e.salary) as avg_salary
 from departments d, employees e
 where d.department_id = e.department_id
 group by department_name;
+
+create table job_grades (
+grade_level varchar(2) primary key,
+lowest_sal int,
+highest_sal int
+);
+
+alter table jobs
+drop column min_salary,
+drop column max_salary,
+add column grade_level varchar(2),
+add constraint fk_job_grades foreign key (grade_level) references job_grades (grade_level);
+
+select * from jobs
